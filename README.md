@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Stripe Guard</h1>
-  <p>Save on outbound request costs by erroring early with zero-overhead validation</p>
+  <p>Save on outbound request costs by erroring early with zero-overhead validation<sup>1</sup></p>
   <a href="https://www.npmjs.com/package/@peridoc/stripe-guard"><img src="https://img.shields.io/npm/v/%40peridoc%2Fstripe-guard.svg?style=flat" /></a>
   <a href="#contributing"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" /></a>
   <a href="https://github.com/peridocorg/stripe-guard/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" /></a>
@@ -14,7 +14,7 @@ Stripe Guard is a code generation utility that uses Stripe's existing types to e
 
 This library would not have been possible without the geniuses behind `ts-runtime-checks` and `expect-type`.
 
-*\*Bundle size considerations apply. Peridoc is not affiliated with or endorsed by Stripe, but we love their SDK.*
+<sup>1</sup> *Bundle size considerations apply. Peridoc is not affiliated with or endorsed by Stripe, but we love their SDK.*
 
 ## Features
 
