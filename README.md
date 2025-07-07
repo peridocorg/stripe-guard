@@ -74,12 +74,12 @@ const charge = await stripe.charges.retrieve(
   ]),
 );
 // Validates and returns the arguments correctly typed
-(alias) runAssertion<"charges.retrieve", 0>(
-  path: "charges.retrieve",
-  index: 0,
-  args: unknown[]
-): [id: string, params?: Stripe.ChargeRetrieveParams | undefined,
-    options?: Stripe.RequestOptions | undefined];
+// (alias) runAssertion<"charges.retrieve", 0>(
+//   path: "charges.retrieve",
+//   index: 0,
+//   args: unknown[]
+// ): [id: string, params?: Stripe.ChargeRetrieveParams | undefined,
+//     options?: Stripe.RequestOptions | undefined];
 
 
 // Method 2: Auto-validation by proxying methods
@@ -273,11 +273,12 @@ interface IHandlerAPI {
   // ...
 }
 
-(method) HandlerAPI.create<"charges", 0>(
-  model: "charges" | ["charges", 0],
-  params?: Stripe.ChargeCreateParams | undefined,
-  options?: Stripe.RequestOptions | undefined
-): Promise<Stripe.Response<Stripe.Charge> | Error>
+// Produces types in-context
+// (method) HandlerAPI.create<"charges", 0>(
+//   model: "charges" | ["charges", 0],
+//   params?: Stripe.ChargeCreateParams | undefined,
+//   options?: Stripe.RequestOptions | undefined
+// ): Promise<Stripe.Response<Stripe.Charge> | Error>
 ```
 
 Have a unique use case? Reach out to us to see if we're a good fit.
