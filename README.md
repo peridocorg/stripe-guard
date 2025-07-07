@@ -14,7 +14,7 @@ Stripe Guard is a code generation utility that uses Stripe's existing types to e
 
 This library would not have been possible without the geniuses behind `ts-runtime-checks` and `expect-type`.
 
-<sup>1</sup> *Bundle size considerations apply. Peridoc is not affiliated with or endorsed by Stripe, but we love their SDK.*
+<sup>1</sup> _Bundle size considerations apply. Peridoc is not affiliated with or endorsed by Stripe, but we love their SDK._
 
 ## Features
 
@@ -45,10 +45,11 @@ npx @peridoc/stripe-guard --bundle --minify
 ### Use in Your Code
 
 ```typescript
-import { Stripe } from 'stripe';
-import { runAssertion, withGuard } from './src/stripe-guard';
+import { Stripe } from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { runAssertion, withGuard } from './src/stripe-guard'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 // Stripe's charges.retrieve has multiple overloads:
 // retrieve(
@@ -70,9 +71,9 @@ const charge = await stripe.charges.retrieve(
     },
     {
       idempotencyKey: '1234567890',
-    }
+    },
   ]),
-);
+)
 // Validates and returns the arguments correctly typed
 // (alias) runAssertion<"charges.retrieve", 0>(
 //   path: "charges.retrieve",
@@ -81,12 +82,11 @@ const charge = await stripe.charges.retrieve(
 // ): [id: string, params?: Stripe.ChargeRetrieveParams | undefined,
 //     options?: Stripe.RequestOptions | undefined];
 
-
 // Method 2: Auto-validation by proxying methods
-const guardedStripe = withGuard(stripe);
+const guardedStripe = withGuard(stripe)
 const customer = await guardedStripe.customers.create({
   email: 'customer@example.com',
-});
+})
 // Limitation: Validates against the default overload
 ```
 
@@ -118,17 +118,17 @@ stripe-guard --dry-run --verbose
 
 ### CLI Options
 
-| Option | Short | Default | Description |
-|--------|-------|---------|-------------|
-| `--output-dir` | `-o` | `src/stripe-guard/` | Output directory for generated files |
-| `--bundle` | `-b` | `false` | Bundle generated files with Rollup |
-| `--minify` | `-m` | `false` | Minify generated files with Terser |
-| `--source-maps` | `-s` | `false` | Generate source maps |
-| `--dry-run` | `-d` | `false` | Preview generation without creating files |
-| `--detailed` | | `NODE_ENV === 'development'` | Show detailed validation errors |
-| `--object-dir` | | `node_modules/.peridoc/stripe-guard/` | Intermediate build directory |
-| `--verbose` | `-v` | `false` | Enable verbose logging |
-| `--help` | `-h` | `false` | Show help message |
+| Option          | Short | Default                               | Description                               |
+| --------------- | ----- | ------------------------------------- | ----------------------------------------- |
+| `--output-dir`  | `-o`  | `src/stripe-guard/`                   | Output directory for generated files      |
+| `--bundle`      | `-b`  | `false`                               | Bundle generated files with Rollup        |
+| `--minify`      | `-m`  | `false`                               | Minify generated files with Terser        |
+| `--source-maps` | `-s`  | `false`                               | Generate source maps                      |
+| `--dry-run`     | `-d`  | `false`                               | Preview generation without creating files |
+| `--detailed`    |       | `NODE_ENV === 'development'`          | Show detailed validation errors           |
+| `--object-dir`  |       | `node_modules/.peridoc/stripe-guard/` | Intermediate build directory              |
+| `--verbose`     | `-v`  | `false`                               | Enable verbose logging                    |
+| `--help`        | `-h`  | `false`                               | Show help message                         |
 
 ## API Reference
 
@@ -137,6 +137,7 @@ stripe-guard --dry-run --verbose
 Validates unknown arguments against typed Stripe API parameters.
 
 **Parameters:**
+
 - `path`: Stripe API path (e.g., `'customers.create'`)
 - `index`: Overload index (defaults to `0`)
 - `args`: Arguments to validate
@@ -144,45 +145,48 @@ Validates unknown arguments against typed Stripe API parameters.
 **Returns:** Typed parameters for the specified Stripe API method
 
 **Example:**
+
 ```typescript
-import { runAssertion } from './src/stripe-guard';
+import { runAssertion } from './src/stripe-guard'
 
 const validatedArgs = runAssertion('customers.create', 0, [
   {
     email: 'test@example.com',
     name: 'John Doe',
   },
-]);
+])
 // const validatedArgs: [params?: Stripe.CustomerCreateParams | undefined,
 //   options?: Stripe.RequestOptions | undefined];
 
-const customer = await stripe.customers.create(...validatedArgs);
+const customer = await stripe.customers.create(...validatedArgs)
 ```
 
 ### `withGuard(stripe)`
 
 Creates a proxied Stripe instance that automatically validates all method calls.
 
-
 **Parameters:**
+
 - `stripe`: The Stripe instance to wrap
 
 **Returns:** Proxied Stripe instance with validation
 
 **Example:**
-```typescript
-import { withGuard } from './src/stripe-guard';
 
-const guardedStripe = withGuard(new Stripe(process.env.STRIPE_SECRET_KEY));
+```typescript
+import { withGuard } from './src/stripe-guard'
+
+const guardedStripe = withGuard(new Stripe(process.env.STRIPE_SECRET_KEY))
 
 // All method calls are automatically validated
 // Will throw an error if the arguments are invalid
 const customer = await guardedStripe.customers.create({
   email: 'customer@example.com',
-});
+})
 ```
 
 Methods and resources which are not validated:
+
 ```typescript
 const internalMethods = new Set([
   'account',
@@ -220,11 +224,12 @@ Returns all available Stripe API paths that can be validated.
 **Returns:** Array of available Stripe API paths
 
 **Example:**
-```typescript
-import { listAssertionPaths } from './src/stripe-guard';
 
-const paths = listAssertionPaths();
-console.log(paths); // ['customers.create', 'charges.create', ...]
+```typescript
+import { listAssertionPaths } from './src/stripe-guard'
+
+const paths = listAssertionPaths()
+console.log(paths) // ['customers.create', 'charges.create', ...]
 ```
 
 ## API Helpers
