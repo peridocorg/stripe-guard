@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json.schemastore.org/package",
+  "name": "@peridoc/stripe-guard",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Peridoc",
+    "email": "dev@peridoc.org",
+    "url": "https://peridoc.org"
+  },
+  "description": "Stripe Guard is a code generation utility that uses Stripe's existing types to enforce pre-request validation for Stripe API calls.",
+  "keywords": [
+    "stripe",
+    "validation",
+    "code generation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peridocorg/stripe-guard.git"
+  },
+  "type": "module",
+  "bin": {
+    "stripe-guard": "dist/index.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "bench": "vitest bench",
+    "build": "tsup",
+    "prebuild": "pnpm run clean:cache",
+    "typecheck": "tsc --noEmit",
+    "lint": "nx eslint:lint -c eslint.config.mjs",
+    "lint:fix": "pnpm run lint -- --fix",
+    "clean": "pnpm run clean:cache dist node_modules",
+    "clean:cache": "rimraf .cache"
+  },
+  "dependencies": {
+    "expect-type": "^1.2.0",
+    "ts-patch": "^3.0.0",
+    "ts-runtime-checks": "^0.6.0",
+    "type-fest": "^4.0.0"
+  },
+  "peerDependencies": {
+    "stripe": "^18.0.0",
+    "typescript": "^5.0.0",
+    "rollup": "^4.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "rollup-plugin-sourcemaps": "^0.6.0",
+    "terser": "^5.0.0"
+  },
+  "devDependencies": {
+    "@peridoc/eslint-config": "workspace:*",
+    "@peridoc/prettier-config": "workspace:*",
+    "@peridoc/tsconfig": "workspace:*",
+    "@types/wait-on": "^5.3.4",
+    "@vitest/coverage-v8": "catalog:vitest3",
+    "@vitest/runner": "catalog:vitest3",
+    "@vitest/snapshot": "catalog:vitest3",
+    "@vitest/ui": "catalog:vitest3",
+    "rimraf": "catalog:",
+    "tsup": "catalog:",
+    "tsx": "catalog:",
+    "vite": "catalog:vite7",
+    "vite-plugin-inspect": "catalog:vite7",
+    "vite-tsconfig-paths": "catalog:vite7",
+    "vitest": "catalog:vitest3",
+    "wait-on": "^8.0.3"
+  },
+  "prettier": "@peridoc/prettier-config"
+}

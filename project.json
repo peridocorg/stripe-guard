@@ -1,0 +1,6 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "packages/public/stripe-guard",
+  "sourceRoot": "packages/public/stripe-guard/src",
+  "projectType": "application"
+}

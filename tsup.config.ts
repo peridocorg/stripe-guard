@@ -1,0 +1,33 @@
+import { defineConfig } from 'tsup'
+
+export default defineConfig({
+  entry: ['./src/index.ts'],
+  outDir: 'dist',
+  format: 'esm',
+  platform: 'node',
+  target: 'node16',
+  bundle: true,
+  dts: false,
+  clean: true,
+  minify: true,
+  sourcemap: false,
+  treeshake: true,
+  splitting: false,
+  external: [
+    'node:fs',
+    'node:path',
+    'node:url',
+    'node:module',
+    'node:util',
+    'typescript',
+    'stripe',
+    'rollup',
+    '@rollup/plugin-node-resolve',
+    'rollup-plugin-sourcemaps',
+    'terser',
+    'expect-type',
+    'type-fest',
+    'ts-patch',
+    'ts-runtime-checks',
+  ],
+})
