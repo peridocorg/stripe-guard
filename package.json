@@ -41,8 +41,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write src/",
     "lint": "eslint -c eslint.config.mjs src/",
-    "lint:fix": "pnpm run lint --fix",
-    "clean": "pnpm run clean:cache dist node_modules",
+    "lint:fix": "npm run lint --fix",
+    "clean": "npm run clean:cache dist node_modules",
     "clean:cache": "rimraf .cache"
   },
   "dependencies": {
