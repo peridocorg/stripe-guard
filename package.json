@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "@peridoc/stripe-guard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
