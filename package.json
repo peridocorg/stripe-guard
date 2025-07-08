@@ -64,7 +64,6 @@
     "@vitest/runner": "^3.2.4",
     "@vitest/snapshot": "^3.2.4",
     "@vitest/ui": "^3.2.4",
-    "@eslint/compat": "^1.2.8",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.25.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",

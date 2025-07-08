@@ -2,7 +2,6 @@
 /// <reference types="./eslint.config.d.ts" />
 import * as path from 'node:path'
 import * as url from 'node:url'
-import { includeIgnoreFile } from '@eslint/compat'
 import eslint from '@eslint/js'
 import stylisticPlugin from '@stylistic/eslint-plugin'
 import prettierConfig from 'eslint-config-prettier'
@@ -47,8 +46,6 @@ export const restrictEnvAccess = tseslint.config(
 
 /** @type {Awaited<import('typescript-eslint').ConfigArray>} */
 const baseConfig = tseslint.config(
-  // Ignore files not tracked by VCS and any config files
-  includeIgnoreFile(path.join(__dirname, '../../.gitignore')),
   { ignores: ['**/*.config.*'] },
   {
     files: ['**/*.ts', '**/*.tsx'],
