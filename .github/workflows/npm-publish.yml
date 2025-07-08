@@ -32,6 +32,8 @@ jobs:
           name: package
           path: |
             dist
+            LICENSE
+            README.md
             package.json
 
   publish-npm:
