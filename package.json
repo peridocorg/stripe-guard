@@ -34,15 +34,15 @@
   },
   "scripts": {
     "test": "vitest run",
-    "pretest": "npm run build",
+    "pretest": "pnpm run build",
     "bench": "vitest bench",
     "build": "tsup",
-    "prebuild": "npm run clean:cache && npm run typecheck && npm run format && npm run lint:fix",
+    "prebuild": "pnpm run clean:cache && pnpm run typecheck && pnpm run format && pnpm run lint:fix",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write src/",
     "lint": "eslint -c eslint.config.mjs src/",
-    "lint:fix": "npm run lint --fix",
-    "clean": "npm run clean:cache dist node_modules",
+    "lint:fix": "pnpm run lint --fix",
+    "clean": "pnpm run clean:cache dist node_modules",
     "clean:cache": "rimraf .cache"
   },
   "dependencies": {

@@ -10,7 +10,8 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { createRequire } from 'node:module'
+import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import { Stripe } from 'stripe'
@@ -29,9 +30,9 @@ if (__filename === undefined) {
   process.exit(1)
 }
 
-const __dirname = dirname(__filename)
 const MAIN = import.meta.url === `file://${__filename}`
 const PKG_ROOT = process.cwd()
+const require = createRequire(import.meta.url)
 
 if (!existsSync(join(PKG_ROOT, 'package.json'))) {
   console.error('Script must be run from package root')
@@ -46,6 +47,7 @@ interface CliOptions {
   sourceMap: boolean
   detailed: boolean
   objectDir: string
+  tsPath: string
   help: boolean
   verbose: boolean
   dryRun: boolean
@@ -59,7 +61,7 @@ const parseCliArgs = (): CliOptions => {
       'output-dir': {
         type: 'string',
         short: 'o',
-        default: resolve(PKG_ROOT, 'src/stripe-guard/'),
+        default: resolve(process.cwd(), join(PKG_ROOT, 'src', 'stripe-guard')),
       },
       bundle: {
         type: 'boolean',
@@ -78,11 +80,18 @@ const parseCliArgs = (): CliOptions => {
       },
       detailed: {
         type: 'boolean',
-        default: process.env['NODE_ENV'] === 'development',
+        default: false,
       },
       'object-dir': {
         type: 'string',
-        default: resolve(PKG_ROOT, 'node_modules/.peridoc/stripe-guard/'),
+        default: resolve(
+          process.cwd(),
+          join(PKG_ROOT, 'node_modules', '.peridoc', 'stripe-guard'),
+        ),
+      },
+      'ts-path': {
+        type: 'string',
+        default: require.resolve('typescript'),
       },
       help: {
         type: 'boolean',
@@ -107,12 +116,13 @@ const parseCliArgs = (): CliOptions => {
   const outputDir = positionals[0] ?? values['output-dir']
 
   return {
-    outputDir: resolve(outputDir),
+    outputDir,
     bundle: values.bundle,
     minify: values.minify,
     sourceMap: values['source-maps'],
     detailed: values.detailed,
-    objectDir: resolve(values['object-dir']),
+    objectDir: values['object-dir'],
+    tsPath: values['ts-path'],
     help: values.help,
     verbose: values.verbose,
     dryRun: values['dry-run'],
@@ -135,8 +145,9 @@ OPTIONS:
   -m, --minify              Minify transpiled files with Terser
   -s, --source-maps         Generate source maps for transpiled files
   -d, --dry-run             Show what would be generated without creating files
-      --detailed            Failing validation will display detailed error messages (default: process.env.NODE_ENV === 'development')
+      --detailed            Failing validation will display detailed error messages (default: false)
       --object-dir <DIR>    Intermediate directory for generated files (default: node_modules/.peridoc/stripe-guard)
+      --ts-path <DIR>       Path to TypeScript package (default: detected via createRequire())
   -v, --verbose             Enable verbose logging
   -h, --help                Show this help message
 
@@ -220,9 +231,13 @@ class StripeAssertionGenerator {
    * Generate assertion functions for Stripe API methods
    */
   public async generate() {
-    this.logger.log('🚀 Starting Stripe assertion generation...')
-    this.logger.debug(`Output directory: ${this.options.outputDir}`)
-    this.logger.debug(`Dry run: ${this.options.dryRun}`)
+    // Ensure tsPath exists
+    if (!existsSync(this.options.tsPath)) {
+      console.error(
+        `The path to the TypeScript package could not be identified. Checked: ${this.options.tsPath}. Please use the --ts-path option to specify the path manually.`,
+      )
+      process.exit(1)
+    }
 
     // Clean existing objectDir and outputDir if not dryRun
     if (!this.options.dryRun) {
@@ -231,6 +246,15 @@ class StripeAssertionGenerator {
       if (existsSync(this.options.outputDir))
         rmSync(this.options.outputDir, { recursive: true })
     }
+
+    // Create output and object directories if they don't exist
+    this.ensureDirectories()
+
+    // Begin
+
+    this.logger.log('🚀 Starting Stripe assertion generation...')
+    this.logger.debug(`Output directory: ${this.options.outputDir}`)
+    this.logger.debug(`Dry run: ${this.options.dryRun}`)
 
     const stripe = new Stripe('dummy_key')
 
@@ -247,9 +271,6 @@ class StripeAssertionGenerator {
       return
     }
 
-    // Create directories if they don't exist
-    this.ensureDirectories()
-
     // Generate files
     this.logger.log('📝 Generating assertion files...')
     this.generateSharedTypesFile()
@@ -264,11 +285,13 @@ class StripeAssertionGenerator {
     )
     this.showGenerationSummary()
 
-    // Transpile the generated code with bundled transpiler
+    // Transpile the generated code with transpiler
     await this.transpile()
 
+    // Bundle files with Rollup
     if (this.options.bundle) await this.bundleFiles()
 
+    // Minify files with Terser
     if (this.options.minify)
       await this.minifyFiles(this.getJSFilesSync(this.options.outputDir))
   }
@@ -374,15 +397,20 @@ class StripeAssertionGenerator {
   private async transpile() {
     this.logger.log('🔧 Transpiling to JavaScript...')
 
-    process.env['TSP_SKIP_CACHE'] = 'true'
+    // Clear TypeScript from module cache before installing ts-patch
+    if (require.cache[this.options.tsPath])
+      delete require.cache[this.options.tsPath]
 
-    const tsPath = join(__dirname, '..', 'node_modules', 'typescript')
-    console.log(tsPath)
+    // Also clear any related TypeScript modules
+    Object.keys(require.cache).forEach((key) => {
+      if (key.includes('typescript')) delete require.cache[key]
+    })
 
     // Install ts-patch
     tsp.install({
-      dir: join(__dirname, '..', 'node_modules', 'typescript'),
+      dir: this.options.tsPath,
       logLevel: this.options.verbose ? LogLevel.verbose : LogLevel.normal,
+      skipCache: true,
     })
 
     try {
@@ -453,19 +481,50 @@ class StripeAssertionGenerator {
 
       if (emitResult.emitSkipped) throw new Error('No files emitted')
 
-      this.logger.log('✅ Transpilation completed successfully')
+      // check that ts-runtime-checks was successful
+      // we pick the first subdirectory in the output directory
+      // which doesn't have child directories and has an index.js
+      // we match a regex against the index.js which looks for
+      // plain functions, which indicates that the types assertions
+      // didn't generate
+      const subdirectory = readdirSync(this.options.outputDir, {
+        withFileTypes: true,
+      }).find(
+        (dir) =>
+          dir.isDirectory() &&
+          readdirSync(join(this.options.outputDir, dir.name), {
+            withFileTypes: true,
+          })
+            .filter((child) => !child.isDirectory())
+            .filter((child) => child.name.endsWith('.js')).length > 0,
+      )
+      if (subdirectory == null)
+        throw new Error('No subdirectory found (impossible)')
+      const indexFile = join(
+        this.options.outputDir,
+        subdirectory.name,
+        'index.js',
+      )
+      const content = readFileSync(indexFile, 'utf8')
+      const regex = /function\s+\w+\s*\(args\)\s*\{\s*return\s+args;\s*\}/m
+      const matches = regex.exec(content)
+      if (matches != null && matches.length > 0)
+        throw new Error(
+          `Type assertions not generated\nReason: matched plain function\n${matches[0]}`,
+        )
 
-      const distDir = this.options.outputDir
-      if (existsSync(distDir))
-        this.logger.log(`📦 Transpiled files available at: ${distDir}`)
+      this.logger.log('✅ Transpilation completed successfully')
+      this.logger.log(
+        `📦 Transpiled files available at: ${this.options.outputDir}`,
+      )
     } catch (error) {
-      this.logger.error('Transpilation failed', error)
-      process.exit(1)
+      throw new Error('Transpilation failed', { cause: error })
     } finally {
       // Uninstall ts-patch
       tsp.uninstall({
-        dir: join(__dirname, '..', 'node_modules', 'typescript'),
+        dir: this.options.tsPath,
         logLevel: this.options.verbose ? LogLevel.verbose : LogLevel.normal,
+        skipCache: true,
       })
     }
   }
@@ -566,8 +625,7 @@ class StripeAssertionGenerator {
       preserveFiles(this.options.outputDir)
       logger.log('✅ Bundling completed successfully')
     } catch (error) {
-      this.logger.error('Bundling failed', error)
-      process.exit(1)
+      throw new Error('Bundling failed', { cause: error })
     }
   }
 
@@ -896,16 +954,14 @@ class StripeAssertionGenerator {
   }
 
   private ensureDirectories() {
-    const { outputDir } = this.options
-    const { objectDir } = this.options
-    if (!existsSync(outputDir)) {
-      mkdirSync(outputDir, { recursive: true })
-      this.logger.debug(`Created output directory: ${outputDir}`)
+    if (!existsSync(this.options.outputDir)) {
+      mkdirSync(this.options.outputDir, { recursive: true })
+      this.logger.debug(`Created output directory: ${this.options.outputDir}`)
     }
 
-    if (!existsSync(objectDir)) {
-      mkdirSync(objectDir, { recursive: true })
-      this.logger.debug(`Created object directory: ${objectDir}`)
+    if (!existsSync(this.options.objectDir)) {
+      mkdirSync(this.options.objectDir, { recursive: true })
+      this.logger.debug(`Created object directory: ${this.options.objectDir}`)
     }
   }
 
@@ -1413,10 +1469,7 @@ if (MAIN) {
   try {
     await new StripeAssertionGenerator(options).generate()
   } catch (error: unknown) {
-    console.error(
-      '❌ Error:',
-      error instanceof Error ? error.message : String(error),
-    )
+    console.error('❌', error)
     process.exit(1)
   }
 }

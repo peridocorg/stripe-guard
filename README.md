@@ -18,12 +18,12 @@ This library would not have been possible without the geniuses behind `ts-runtim
 
 ## Features
 
-- **Performance Optimized**: Only 33% extra CPU time compared to the vanilla SDK
-- **Network Efficiency**: Faster at ~0.5% malformed payloads with ~100ms network round-trip time
+- **Performance Optimized**: `ts-runtime-checks` is [the fastest loose assertion validator](https://moltar.github.io/typescript-runtime-type-benchmarks/)
+- **Network Efficiency**: More efficient at ~0.5% malformed payloads (with ~100ms network round-trip time)
 - **Overload-Aware Validation**: Supports type-safe validation against chosen function overload
 - **Type Safety**: Generates TypeScript assertion functions for all Stripe API methods
 - **Zero Runtime Dependencies**: Validation logic is completely self-contained
-- **Developer Friendly**: Detailed error messages by default in development mode
+- **Developer Friendly**: Detailed validator error messages are available
 
 ## Installation
 
@@ -120,13 +120,14 @@ stripe-guard --dry-run --verbose
 
 | Option          | Short | Default                               | Description                               |
 | --------------- | ----- | ------------------------------------- | ----------------------------------------- |
-| `--output-dir`  | `-o`  | `src/stripe-guard/`                   | Output directory for generated files      |
+| `--output-dir`  | `-o`  | `src/stripe-guard/`                   | Output directory for transpiled code      |
 | `--bundle`      | `-b`  | `false`                               | Bundle generated files with Rollup        |
 | `--minify`      | `-m`  | `false`                               | Minify generated files with Terser        |
 | `--source-maps` | `-s`  | `false`                               | Generate source maps                      |
 | `--dry-run`     | `-d`  | `false`                               | Preview generation without creating files |
-| `--detailed`    |       | `NODE_ENV === 'development'`          | Show detailed validation errors           |
-| `--object-dir`  |       | `node_modules/.peridoc/stripe-guard/` | Intermediate build directory              |
+| `--detailed`    |       | `false`                               | Show detailed validation errors           |
+| `--object-dir`  |       | `node_modules/.peridoc/stripe-guard/` | Intermediate source directory              |
+| `--ts-path`     |       | `detected via createRequire()`        | Path to TypeScript package                |
 | `--verbose`     | `-v`  | `false`                               | Enable verbose logging                    |
 | `--help`        | `-h`  | `false`                               | Show help message                         |
 
@@ -291,6 +292,35 @@ Have a unique use case? [Reach out to us](mailto:sales@peridoc.org) to see if we
 ## Important Limitations
 
 ⚠️ **Bundle Size**: The generated validation JavaScript is approximately **1.4MB** in size. Consider this when evaluating the trade-off between validation benefits and bundle size for your application.
+
+The reason for the large bundle size is because, despite being the fastest form of validation, *type guards get very verbose*. Here's an example of the generated code from `stripe-guard --detailed` for `stripe.customers.create()`:
+
+```javascript
+function create1(args) {
+  if (!Array.isArray(args))
+    throw new Error("Expected args to be [undefined | CustomerCreateParams, undefined | RequestOptions]");
+  const [t_1, t_2] = args;
+  if (t_2 !== undefined) {
+    if (typeof t_2 !== "object" || t_2 === null)
+      throw new Error("Expected args[1] to be RequestOptions");
+    if (t_2.apiKey !== undefined && typeof t_2.apiKey !== "string")
+      throw new Error("Expected args[1].apiKey to be undefined | string");
+    if (t_2.idempotencyKey !== undefined && typeof t_2.idempotencyKey !== "string")
+      throw new Error("Expected args[1].idempotencyKey to be undefined | string");
+    if (t_2.stripeAccount !== undefined && typeof t_2.stripeAccount !== "string")
+      throw new Error("Expected args[1].stripeAccount to be undefined | string");
+    if (t_2.apiVersion !== undefined && typeof t_2.apiVersion !== "string")
+      throw new Error("Expected args[1].apiVersion to be undefined | string");
+    if (t_2.maxNetworkRetries !== undefined && typeof t_2.maxNetworkRetries !== "number")
+      throw new Error("Expected args[1].maxNetworkRetries to be undefined | number");
+    if (t_2.timeout !== undefined && typeof t_2.timeout !== "number")
+      throw new Error("Expected args[1].timeout to be undefined | number");
+    if (t_2.host !== undefined && typeof t_2.host !== "string")
+      throw new Error("Expected args[1].host to be undefined | string");
+    ;
+  }
+  // ...
+```
 
 ## Generated Structure
 
