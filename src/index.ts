@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { createRequire } from 'node:module'
-import { join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import { Stripe } from 'stripe'
@@ -33,6 +33,8 @@ if (__filename === undefined) {
 const MAIN = import.meta.url === `file://${__filename}`
 const PKG_ROOT = process.cwd()
 const require = createRequire(import.meta.url)
+const tsPath = require.resolve('typescript')
+const tsDir = dirname(tsPath)
 
 if (!existsSync(join(PKG_ROOT, 'package.json'))) {
   console.error('Script must be run from package root')
@@ -84,14 +86,14 @@ const parseCliArgs = (): CliOptions => {
       },
       'object-dir': {
         type: 'string',
-        default: resolve(
-          process.cwd(),
-          join(PKG_ROOT, 'node_modules', '.peridoc', 'stripe-guard'),
-        ),
+        // by resolving relative to the resolved typescript, we can ensure
+        // we're likely to resolve the rest of the requirements of the
+        // generated code
+        default: resolve(tsDir, '..', '..', '.peridoc', 'stripe-guard'),
       },
       'ts-path': {
         type: 'string',
-        default: require.resolve('typescript'),
+        default: tsPath,
       },
       help: {
         type: 'boolean',
@@ -410,7 +412,6 @@ class StripeAssertionGenerator {
     tsp.install({
       dir: this.options.tsPath,
       logLevel: this.options.verbose ? LogLevel.verbose : LogLevel.normal,
-      skipCache: true,
     })
 
     try {
@@ -524,7 +525,6 @@ class StripeAssertionGenerator {
       tsp.uninstall({
         dir: this.options.tsPath,
         logLevel: this.options.verbose ? LogLevel.verbose : LogLevel.normal,
-        skipCache: true,
       })
     }
   }
