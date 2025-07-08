@@ -1,9 +1,7 @@
 import { execSync } from 'child_process'
 
 export const setupStripeGuard = () => {
-  execSync(
-    './dist/index.js -s --output-dir ./test/dist --object-dir ./test/obj',
-  )
+  execSync('./dist/index.js --output-dir ./test/dist --object-dir ./test/obj')
 }
 
 export const teardownStripeGuard = () => {

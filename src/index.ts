@@ -13,13 +13,6 @@ import {
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
-import type {
-  CompilerOptions,
-  Diagnostic,
-  DiagnosticMessageChain,
-  LineAndCharacter,
-  SourceFile,
-} from 'typescript'
 import { Stripe } from 'stripe'
 import * as tsp from 'ts-patch'
 import { LogLevel } from 'ts-patch/system/index.js'
@@ -383,6 +376,9 @@ class StripeAssertionGenerator {
 
     process.env['TSP_SKIP_CACHE'] = 'true'
 
+    const tsPath = join(__dirname, '..', 'node_modules', 'typescript')
+    console.log(tsPath)
+
     // Install ts-patch
     tsp.install({
       dir: join(__dirname, '..', 'node_modules', 'typescript'),
@@ -417,7 +413,8 @@ class StripeAssertionGenerator {
         // inlineSourceMap: this.options.sourceMap,
         // inlineSources: this.options.sourceMap,
         noEmitOnError: true,
-      } satisfies CompilerOptions
+        // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+      } satisfies import('typescript').CompilerOptions
 
       // Create the program
       const program = ts.createProgram({
@@ -684,13 +681,17 @@ class StripeAssertionGenerator {
   }
 
   private reportDiagnostics(
-    diagnostics: readonly Diagnostic[],
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    diagnostics: readonly import('typescript').Diagnostic[],
     getLineAndCharacterOfPosition: (
-      file: SourceFile,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+      file: import('typescript').SourceFile,
       position: number,
-    ) => LineAndCharacter,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    ) => import('typescript').LineAndCharacter,
     flattenDiagnosticMessageText: (
-      messageText: DiagnosticMessageChain | string,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+      messageText: string | import('typescript').DiagnosticMessageChain,
       newLine: string,
     ) => string,
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -1129,7 +1130,6 @@ export function runAssertion<P extends StripeApiPath, N extends number = 0>(
 
   if (!assert) {
     const availablePaths = listAssertionPaths().join(', ');
-    console.error(\`[runAssertion] No assertion function found for path: \${path}. Available paths: \${availablePaths}\`);
     throw new Error(\`No assertion function found for Stripe API path: \${path}. Available paths: \${availablePaths}\`);
   }
 
@@ -1139,7 +1139,6 @@ export function runAssertion<P extends StripeApiPath, N extends number = 0>(
     if (result === null) throw new Error(\`Assertion failed for path: \${path}\`);
     return result;
   } catch (error) {
-    // console.error(\`[runAssertion] Assertion failed for path: \${path}\`, error);
     // Rethrow with a more descriptive message
     if (error instanceof Error)
       throw new Error(\`Failed to get typed args for \${path}: \${error.message}\`);
@@ -1263,7 +1262,6 @@ console.debug(\`[stripe-guard] Found prototype method: \${currentPath}\`);
           }
           return originalMethod.apply(this, args);
         } catch (error) {
-          console.error(\`[stripe-guard] Validation failed for \${path}:\`, error);
           throw new Error(\`Stripe API validation failed for \${path}: \${error instanceof Error ? error.message : String(error)}\`);
         } finally {
           console.debug(\`[stripe-guard] Completed\${path} call\`);

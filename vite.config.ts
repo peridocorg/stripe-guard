@@ -21,7 +21,6 @@ export default defineConfig({
     emptyOutDir: true,
   },
   test: {
-    ui: true,
     // watchTriggerPatterns: [{ pattern: /src\/.*\.ts$/ }],
     maxConcurrency: Math.max(
       Math.floor((availableParallelism() ?? cpus().length) / 2),

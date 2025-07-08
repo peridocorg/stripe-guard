@@ -1,11 +1,7 @@
 import { Stripe } from 'stripe'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-import {
-  listAssertionPaths,
-  runAssertion,
-  withGuard,
-} from '../../src/stripe-guard'
+import { listAssertionPaths, runAssertion, withGuard } from '../dist'
 
 describe('withGuard', () => {
   const stripe = new Stripe('sk_test_123', {
@@ -177,14 +173,12 @@ describe('runAssertion', () => {
   })
 
   it('should throw on invalid args', async () => {
-    await expect(
-      stripe.charges.create(
-        ...runAssertion('charges.create', 0, [
-          {
-            amount: 'a string',
-          },
-        ]),
-      ),
-    ).rejects.toThrow()
+    expect(() =>
+      runAssertion('charges.create', 0, [
+        {
+          amount: 'a string',
+        },
+      ]),
+    ).toThrow()
   })
 })
