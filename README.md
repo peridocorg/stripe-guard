@@ -10,7 +10,7 @@
 
 ## What is Stripe Guard?
 
-Stripe Guard is a code generation utility that uses Stripe's existing types to enforce pre-request validation for Stripe API calls. By catching malformed payloads before they hit the network, you can reduce unnecessary API calls and improve application performance.
+Stripe Guard is a code generation utility that creates type guards to enforce pre-request validation for Stripe API calls. By catching malformed payloads before they hit the network, you can reduce unnecessary API calls and improve application performance.
 
 This library would not have been possible without the geniuses behind `ts-runtime-checks` and `expect-type`.
 
@@ -18,11 +18,11 @@ This library would not have been possible without the geniuses behind `ts-runtim
 
 ## Features
 
-- **Performance Optimized**: Only 33% extra CPU time before the network operation
-- **Network Efficiency**: Breaks even at ~0.5% malformed payloads with ~100ms network round-trip time
-- **Overload-Aware Validation**: Support type-safe validation against chosen function overload
+- **Performance Optimized**: Only 33% extra CPU time compared to the vanilla SDK
+- **Network Efficiency**: Faster at ~0.5% malformed payloads with ~100ms network round-trip time
+- **Overload-Aware Validation**: Supports type-safe validation against chosen function overload
 - **Type Safety**: Generates TypeScript assertion functions for all Stripe API methods
-- **Zero Runtime Dependencies**: Self-contained validation logic
+- **Zero Runtime Dependencies**: Validation logic is completely self-contained
 - **Developer Friendly**: Detailed error messages by default in development mode
 
 ## Installation
@@ -110,7 +110,7 @@ stripe-guard -o ./stripe-types
 stripe-guard --detailed
 
 # Produce source maps and specify the directory for the generated source
-stripe-guard --source-map --object-dir ./custom-obj
+stripe-guard --source-maps --object-dir ./custom-obj
 
 # Dry run to see what would be generated
 stripe-guard --dry-run --verbose
@@ -286,7 +286,7 @@ interface IHandlerAPI {
 // ): Promise<Stripe.Response<Stripe.Charge> | Error>
 ```
 
-Have a unique use case? Reach out to us to see if we're a good fit.
+Have a unique use case? [Reach out to us](mailto:sales@peridoc.org) to see if we're a good fit.
 
 ## Important Limitations
 
