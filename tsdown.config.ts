@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['./src/index.ts'],
@@ -6,13 +6,11 @@ export default defineConfig({
   format: 'esm',
   platform: 'node',
   target: 'node16',
-  bundle: true,
   dts: false,
   clean: true,
   minify: true,
   sourcemap: false,
   treeshake: true,
-  splitting: false,
   external: [
     'node:fs',
     'node:path',
@@ -30,4 +28,7 @@ export default defineConfig({
     'ts-patch',
     'ts-runtime-checks',
   ],
+  outExtensions: ({ format }) => ({
+    js: format === 'es' ? '.js' : '.cjs',
+  }),
 })

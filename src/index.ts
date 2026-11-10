@@ -429,12 +429,8 @@ class StripeAssertionGenerator {
         exactOptionalPropertyTypes: true,
         strictNullChecks: true,
         types: ['node'],
-        plugins: [
-          {
-            // @ts-expect-error ts-patch
-            transform: 'ts-runtime-checks',
-          },
-        ],
+        // @ts-expect-error ts-patch transformer entry is not a PluginImport
+        plugins: [{ transform: 'ts-runtime-checks' }],
         rootDir: this.options.objectDir,
         outDir: this.options.outputDir,
         sourceMap: this.options.sourceMap,
