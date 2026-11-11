@@ -563,7 +563,7 @@ class StripeAssertionGenerator {
         '@rollup/plugin-node-resolve'
       )
 
-      const { default: sourcemaps } = await import('rollup-plugin-sourcemaps')
+      const { default: sourcemaps } = await import('rollup-plugin-sourcemaps2')
 
       // Create a Rollup bundle for each entry file
       const bundle = await rollup({

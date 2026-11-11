@@ -21,7 +21,7 @@ export default defineConfig({
     'stripe',
     'rollup',
     '@rollup/plugin-node-resolve',
-    'rollup-plugin-sourcemaps',
+    'rollup-plugin-sourcemaps2',
     'terser',
     'expect-type',
     'type-fest',

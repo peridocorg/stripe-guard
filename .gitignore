@@ -40,3 +40,6 @@ dist/
 test/coverage/
 test/dist/
 test/obj/
+
+# lockfiles (installed through the peridoc pnpm workspace)
+package-lock.json
