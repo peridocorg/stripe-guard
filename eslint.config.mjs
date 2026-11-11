@@ -64,7 +64,6 @@ const baseConfig = tseslint.config(
     ],
     rules: {
       '@stylistic/indent': ['off'],
-      'func-style': ['warn', 'expression', { allowArrowFunctions: true }],
       'no-console': ['off'],
       'no-restricted-syntax': 'off',
       // Modern JavaScript features
@@ -80,7 +79,10 @@ const baseConfig = tseslint.config(
       '@typescript-eslint/default-param-last': 'error',
       '@typescript-eslint/dot-notation': 'error',
       // '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/explicit-member-accessibility': 'error',
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
+        { accessibility: 'no-public' },
+      ],
       // '@typescript-eslint/explicit-module-boundary-types': 'error',
       '@typescript-eslint/prefer-as-const': 'error', // Prefer const assertions
       '@typescript-eslint/prefer-destructuring': 'error',
@@ -128,14 +130,6 @@ const baseConfig = tseslint.config(
       'unicorn/prefer-event-target': 'error', // Prefer EventTarget over EventEmitter
       // TypeScript-specific modern features
       // "no-unused-vars": "off",
-      // Destructuring preferences
-      'prefer-destructuring': [
-        'error',
-        {
-          array: true,
-          object: true,
-        },
-      ],
       // Modern async/await practices
       'require-atomic-updates': 'error',
       'no-return-await': 'off',
@@ -156,17 +150,14 @@ const baseConfig = tseslint.config(
       'import/no-amd': 'error',
       // Error handling
       'unicorn/prefer-optional-catch-binding': 'error',
-      '@/no-throw-literal': 'error',
       // Array methods
       'unicorn/prefer-array-find': 'error',
       'unicorn/prefer-array-flat': 'error',
       'unicorn/prefer-array-flat-map': 'error',
       // Modern iteration
       'unicorn/prefer-native-coercion-functions': 'error',
-      'unicorn/prefer-includes': 'error',
       // String methods
       'unicorn/prefer-string-slice': 'error',
-      'unicorn/prefer-string-starts-ends-with': 'error',
       'unicorn/prefer-string-trim-start-end': 'error',
       // DOM APIs
       'unicorn/prefer-add-event-listener': 'error',
@@ -182,10 +173,7 @@ const baseConfig = tseslint.config(
         'warn',
         { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
       ],
-      '@typescript-eslint/consistent-type-exports': [
-        'error',
-        { fixMixedExportsWithInlineTypeSpecifier: true },
-      ],
+      '@typescript-eslint/consistent-type-exports': 'error',
       '@typescript-eslint/no-misused-promises': [
         2,
         { checksVoidReturn: { attributes: false } },
